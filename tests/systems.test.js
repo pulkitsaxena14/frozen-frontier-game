@@ -117,6 +117,34 @@ test('compass locks onto one target for the whole quest instead of flipping dire
   assert.equal(compass.target(), null);
 });
 
+test('compass guides craft_item quests to a missing recipe ingredient, not just its own target', () => {
+  // Regression: "Forge 2 iron ingots" is a craft_item quest, and the
+  // compass only ever handled collect_item quests — it went completely
+  // silent here, even though the player might never have crossed paths
+  // with coal while following the compass straight to iron_ore for the
+  // previous quest (both are in the Mountains biome, but only iron_ore had
+  // compass guidance).
+  const config = buildConfig();
+  const qIngotIndex = config.quests.findIndex((q) => q.id === 'q_ingot');
+  assert.ok(qIngotIndex >= 0, 'fixture assumes q_ingot exists');
+  const state = { quest: { index: qIngotIndex }, player: { x: 0, y: 0 } };
+  const coalSpot = { x: 8, y: 0 };
+  const coalVein = config.resourcesById.coal_vein;
+  const world = { gen: { size: 200, nodeDefAt: (x, y) => (x === coalSpot.x && y === coalSpot.y ? coalVein : null) } };
+
+  // Plenty of iron_ore on hand, but zero coal — iron_ingot needs both.
+  const inventory = { count: (id) => (id === 'iron_ore' ? 10 : 0) };
+  const compass = createCompass({ state, config, world, inventory });
+
+  const found = compass.target();
+  assert.ok(found, 'should find the coal source even though the quest target (iron_ingot) has no direct source');
+  assert.deepEqual({ x: found.x, y: found.y }, coalSpot);
+
+  // Once the player has enough coal too, there's nothing left to point at.
+  inventory.count = () => 10;
+  assert.equal(compass.target(), null);
+});
+
 test('research reservation only protects the amount still needed, not the whole stack', () => {
   const ctx = makeCtx();
   ctx.inventory.add('ice_shard', 20, { ignoreCapacity: true }); // keen_eye(5) + frost_walker(8) = 13 needed
