@@ -10,6 +10,7 @@ import { createResearch } from '../src/systems/research.js';
 import { createCrafting } from '../src/systems/crafting.js';
 import { createLootRoller } from '../src/systems/loot.js';
 import { createVillagers } from '../src/systems/villagers.js';
+import { createCompass } from '../src/systems/compass.js';
 import { defaultState } from '../src/save/save.js';
 import { roundCost } from '../src/utils/math.js';
 import { hash2D, weightedPick } from '../src/utils/rng.js';
@@ -57,6 +58,47 @@ test('harvesters may sell raw materials but never a crafter\'s ingredients', () 
   const coins = ctx.economy.sell('stone', 2, { worker: true });
   assert.ok(coins > 0);
   assert.equal(evt.worker, true);
+});
+
+test('compass locks onto one target for the whole quest instead of flipping direction as the player moves', () => {
+  // Regression: the old cache recomputed "nearest" whenever the player moved
+  // more than 4 tiles from the last check. Resource types spawn all around a
+  // biome ring, so a player walking toward one instance could easily end up
+  // closer to a totally different instance in another direction — the arrow
+  // would swing mid-walk and a player chasing it could melt tiles in several
+  // directions for what looks like the same resource.
+  const config = buildConfig();
+  const state = { quest: { index: 0 }, player: { x: 0, y: 0 } }; // q_wood: collect wood_log
+  const west = { x: -5, y: 0 };
+  const east = { x: 5, y: 0 };
+  const iceTree = config.resourcesById.ice_tree;
+  const world = {
+    gen: {
+      size: 200,
+      nodeDefAt: (x, y) => ((x === west.x && y === west.y) || (x === east.x && y === east.y) ? iceTree : null),
+    },
+  };
+  const compass = createCompass({ state, config, world });
+
+  const first = compass.target();
+  assert.ok(
+    (first.x === west.x || first.x === east.x) && first.y === 0,
+    'picks one of the two equidistant instances'
+  );
+
+  // Walk from x=0 to the OPPOSITE side, ending up right next to whichever
+  // instance wasn't picked. The old code would recompute mid-walk and flip.
+  state.player.x = first.x === west.x ? east.x : west.x;
+  const afterWalking = compass.target();
+  assert.deepEqual(
+    { x: afterWalking.x, y: afterWalking.y },
+    { x: first.x, y: first.y },
+    'must stay locked on the original target even now standing next to the other instance'
+  );
+
+  // A new quest (different target item) does get a fresh pick.
+  state.quest.index = 3; // q_meat: collect raw_meat — ice_tree no longer matches
+  assert.equal(compass.target(), null);
 });
 
 test('materials needed by unresearched research are protected from auto-sale', () => {
