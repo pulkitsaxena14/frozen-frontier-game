@@ -42,21 +42,31 @@ test('harvesters may sell raw materials but never a crafter\'s ingredients', () 
   const ctx = makeCtx();
   ctx.inventory.add('cooked_meat', 3, { ignoreCapacity: true }); // crafted — never auto-sold this way
   ctx.inventory.add('hide', 2, { ignoreCapacity: true });
-  ctx.inventory.add('wood_log', 5, { ignoreCapacity: true });
+  ctx.inventory.add('stone', 5, { ignoreCapacity: true }); // unused by any recipe or research
   let ids = ctx.economy.harvesterSellables().map((i) => i.id).sort();
-  assert.deepEqual(ids, ['hide', 'wood_log']);
+  assert.deepEqual(ids, ['hide', 'stone']);
   // a crafter tanning leather (hide -> leather) reserves hide
   ctx.state.workers[0] = { job: 'craft', building: 'forge', recipe: 'leather' };
   ids = ctx.economy.harvesterSellables().map((i) => i.id);
-  assert.deepEqual(ids, ['wood_log']);
+  assert.deepEqual(ids, ['stone']);
   assert.equal(ctx.economy.isReserved('hide'), true);
-  assert.equal(ctx.economy.isReserved('wood_log'), false);
+  assert.equal(ctx.economy.isReserved('stone'), false);
   // worker sales still pay coins and tag the event
   let evt = null;
   ctx.events.on('items.sold', (e) => { evt = e; });
-  const coins = ctx.economy.sell('wood_log', 2, { worker: true });
+  const coins = ctx.economy.sell('stone', 2, { worker: true });
   assert.ok(coins > 0);
   assert.equal(evt.worker, true);
+});
+
+test('materials needed by unresearched research are protected from auto-sale', () => {
+  const ctx = makeCtx();
+  ctx.inventory.add('ice_shard', 5, { ignoreCapacity: true }); // keen_eye + frost_walker both need it
+  assert.equal(ctx.economy.isReserved('ice_shard'), true);
+  assert.deepEqual(ctx.economy.harvesterSellables().map((i) => i.id), []);
+  ctx.state.research = ['keen_eye', 'frost_walker']; // both bought — no longer needed
+  assert.equal(ctx.economy.isReserved('ice_shard'), false);
+  assert.deepEqual(ctx.economy.harvesterSellables().map((i) => i.id), ['ice_shard']);
 });
 
 function makeVillagerCtx() {

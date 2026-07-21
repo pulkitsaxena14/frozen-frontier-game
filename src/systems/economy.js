@@ -45,14 +45,19 @@ export function createEconomy(ctx) {
     return coins;
   }
 
-  // Item ids any assigned crafter needs as a recipe ingredient — off-limits
-  // for other workers to auto-sell, whether raw materials or another
-  // crafter's output.
+  // Item ids off-limits for workers to auto-sell: anything an assigned
+  // crafter needs as a recipe ingredient, plus materials any not-yet-bought
+  // research still needs — upgrades (furnace/tool/etc.) are coins-only so
+  // they never reserve anything.
   function reservedInputs() {
     const reserved = new Set();
     for (const w of Object.values(state.workers ?? {})) {
       if (w?.job !== 'craft') continue;
       for (const input of config.recipesById[w.recipe]?.inputs ?? []) reserved.add(input.item);
+    }
+    for (const r of config.research ?? []) {
+      if (state.research?.includes(r.id)) continue; // already bought — no longer needed
+      for (const m of r.materials ?? []) reserved.add(m.item);
     }
     return reserved;
   }
