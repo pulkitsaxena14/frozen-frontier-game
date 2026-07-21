@@ -45,18 +45,31 @@ export function createEconomy(ctx) {
     return coins;
   }
 
-  // What a delivery-runner villager may auto-sell: crafted goods only, minus
-  // anything an assigned crafter needs as an ingredient.
-  function workerSellables() {
+  // Item ids any assigned crafter needs as a recipe ingredient — off-limits
+  // for other workers to auto-sell, whether raw materials or another
+  // crafter's output.
+  function reservedInputs() {
     const reserved = new Set();
     for (const w of Object.values(state.workers ?? {})) {
       if (w?.job !== 'craft') continue;
       for (const input of config.recipesById[w.recipe]?.inputs ?? []) reserved.add(input.item);
     }
+    return reserved;
+  }
+
+  function isReserved(itemId) {
+    return reservedInputs().has(itemId);
+  }
+
+  // What a harvester may auto-sell once its backpack is full: raw materials
+  // only, minus anything an assigned crafter needs as an ingredient. Crafted
+  // goods are handled separately — a crafter sells its own surplus output.
+  function harvesterSellables() {
+    const reserved = reservedInputs();
     return config.items.filter(
-      (it) => it.crafted && !reserved.has(it.id) && inventory.count(it.id) > 0
+      (it) => !it.crafted && !reserved.has(it.id) && inventory.count(it.id) > 0
     );
   }
 
-  return { addCoins, spend, demandItemId, sellPrice, sell, workerSellables };
+  return { addCoins, spend, demandItemId, sellPrice, sell, harvesterSellables, isReserved };
 }

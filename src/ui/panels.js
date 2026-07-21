@@ -181,28 +181,22 @@ export function createPanels(ctx) {
       ? 'Resting'
       : job.job === 'harvest'
         ? 'Harvesting the camp'
-        : job.job === 'sell'
-          ? 'Running deliveries to Maple'
-          : `Crafting ${config.itemsById[config.recipesById[job.recipe]?.outputs[0].item]?.name ?? '…'}`;
+        : `Crafting ${config.itemsById[config.recipesById[job.recipe]?.outputs[0].item]?.name ?? '…'}`;
     let html = row(`<div class="row-icon">💤</div>
       <div class="row-main"><div class="row-name">Currently: ${jobLabel}</div>
       <div class="row-sub">Workers run at ${pct}% of your efficiency.</div></div>
       ${job ? '<button class="btn btn-primary" data-job="rest">Rest</button>' : ''}`);
     html += row(`<div class="row-icon">🪓</div>
       <div class="row-main"><div class="row-name">Harvest the camp</div>
-      <div class="row-sub">Gathers from any node in the warm area.</div></div>
+      <div class="row-sub">Gathers from any node in the warm area. Sells unreserved materials to Maple once the backpack fills.</div></div>
       <button class="btn btn-primary" data-job="harvest" ${job?.job === 'harvest' ? 'disabled' : ''}>Assign</button>`);
-    html += row(`<div class="row-icon">🛒</div>
-      <div class="row-main"><div class="row-name">Run deliveries to Maple</div>
-      <div class="row-sub">Auto-sells crafted goods — skips ingredients your crafters need.</div></div>
-      <button class="btn btn-primary" data-job="sell" ${job?.job === 'sell' ? 'disabled' : ''}>Assign</button>`);
     for (const buildingId of ['kitchen', 'forge']) {
       for (const recipe of crafting.recipesFor(buildingId)) {
         const out = config.itemsById[recipe.outputs[0].item];
         const current = job?.job === 'craft' && job.recipe === recipe.id;
         html += row(`<div class="row-icon">${out.icon}</div>
           <div class="row-main"><div class="row-name">${buildingId === 'kitchen' ? '🍳' : '⚒️'} Keep crafting ${out.name}</div>
-          <div class="row-sub">Repeats whenever ingredients are available.</div></div>
+          <div class="row-sub">Repeats whenever ingredients are available, and sells the surplus to Maple.</div></div>
           <button class="btn btn-primary" data-job="craft" data-building="${buildingId}" data-recipe="${recipe.id}" ${current ? 'disabled' : ''}>Assign</button>`);
       }
     }
@@ -211,7 +205,6 @@ export function createPanels(ctx) {
       const el = e.currentTarget;
       if (el.dataset.job === 'rest') ctx.villagers.assign(slot, null);
       else if (el.dataset.job === 'harvest') ctx.villagers.assign(slot, { job: 'harvest' });
-      else if (el.dataset.job === 'sell') ctx.villagers.assign(slot, { job: 'sell' });
       else ctx.villagers.assign(slot, { job: 'craft', building: el.dataset.building, recipe: el.dataset.recipe });
       audio.play('click');
       render();

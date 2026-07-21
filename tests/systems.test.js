@@ -38,30 +38,29 @@ test('worker crafting applies the efficiency time multiplier', () => {
   assert.ok(Math.abs(ctx.state.crafts[1].doneAt - recipe.time) < 1e-9);
 });
 
-test('delivery runners sell crafted goods but never crafter ingredients', () => {
+test('harvesters may sell raw materials but never a crafter\'s ingredients', () => {
   const ctx = makeCtx();
-  ctx.inventory.add('cooked_meat', 3, { ignoreCapacity: true });
-  ctx.inventory.add('leather', 2, { ignoreCapacity: true });
-  ctx.inventory.add('wood_log', 5, { ignoreCapacity: true }); // raw — never auto-sold
-  let ids = ctx.economy.workerSellables().map((i) => i.id).sort();
-  assert.deepEqual(ids, ['cooked_meat', 'leather']);
-  // a crafter working on luxury meals reserves cooked_meat
-  ctx.state.workers[0] = { job: 'craft', building: 'kitchen', recipe: 'luxury_meal' };
-  ids = ctx.economy.workerSellables().map((i) => i.id);
-  assert.deepEqual(ids, ['leather']);
+  ctx.inventory.add('cooked_meat', 3, { ignoreCapacity: true }); // crafted — never auto-sold this way
+  ctx.inventory.add('hide', 2, { ignoreCapacity: true });
+  ctx.inventory.add('wood_log', 5, { ignoreCapacity: true });
+  let ids = ctx.economy.harvesterSellables().map((i) => i.id).sort();
+  assert.deepEqual(ids, ['hide', 'wood_log']);
+  // a crafter tanning leather (hide -> leather) reserves hide
+  ctx.state.workers[0] = { job: 'craft', building: 'forge', recipe: 'leather' };
+  ids = ctx.economy.harvesterSellables().map((i) => i.id);
+  assert.deepEqual(ids, ['wood_log']);
+  assert.equal(ctx.economy.isReserved('hide'), true);
+  assert.equal(ctx.economy.isReserved('wood_log'), false);
   // worker sales still pay coins and tag the event
   let evt = null;
   ctx.events.on('items.sold', (e) => { evt = e; });
-  const coins = ctx.economy.sell('leather', 2, { worker: true });
+  const coins = ctx.economy.sell('wood_log', 2, { worker: true });
   assert.ok(coins > 0);
   assert.equal(evt.worker, true);
 });
 
-test('reassigning a worker clears the outgoing job\'s cooldown', () => {
-  // Regression: assign() reset target/detour/etc but not waitUntil, so a
-  // worker reassigned mid-cooldown (e.g. right after a sell trip) froze for
-  // the remainder of the OLD job's wait timer before the new job did anything.
-  const ctx = {
+function makeVillagerCtx() {
+  return {
     state: { time: 0, seed: 1, quest: { index: 2 }, research: [], workers: {} },
     world: {
       gen: { center: 0 },
@@ -69,26 +68,73 @@ test('reassigning a worker clears the outgoing job\'s cooldown', () => {
       isWalkable: () => true,
       isThawed: () => true,
       nodeAt: () => null,
-      buildings: [{ id: 'merchant', x: 0, y: 0 }],
+      buildings: [{ id: 'merchant', x: 0, y: 0 }, { id: 'kitchen', x: 2, y: 0 }],
     },
     events: createEventBus(),
     inventory: { isFull: () => false, count: () => 5, add: () => 1 },
     progression: { toolMultiplier: () => 1 },
-    economy: { workerSellables: () => [{ id: 'cooked_meat' }], sell: () => 5 },
+    economy: { harvesterSellables: () => [{ id: 'wood_log' }], isReserved: () => false, sell: () => 5 },
     crafting: { start: () => true },
     particles: { floatText: () => {} },
-    config: { world: { player: { harvest_interval: 1 } }, recipesById: {} },
+    config: { world: { player: { harvest_interval: 1 } }, recipesById: {
+      cooked_meat: { inputs: [{ item: 'raw_meat', amount: 1 }], outputs: [{ item: 'cooked_meat', amount: 1 }], building: 'kitchen', time: 2 },
+    } },
   };
+}
+
+test('reassigning a worker clears the outgoing job\'s cooldown', () => {
+  // Regression: assign() reset target/detour/etc but not waitUntil, so a
+  // worker reassigned mid-cooldown (e.g. right after a craft) froze for the
+  // remainder of the OLD job's wait timer before the new job did anything.
+  const ctx = makeVillagerCtx();
   const villagers = createVillagers(ctx);
   villagers.update(0.001); // spawns the desired villager
   const v = villagers.list()[0];
 
-  villagers.assign(v.slot, { job: 'sell' });
+  villagers.assign(v.slot, { job: 'craft', building: 'kitchen', recipe: 'cooked_meat' });
   for (let i = 0; i < 400; i++) { ctx.state.time += 0.05; villagers.update(0.05); }
-  assert.ok(v.waitUntil > ctx.state.time, 'seller should be mid-cooldown');
+  assert.ok(v.waitUntil > ctx.state.time, 'crafter should be mid-cooldown');
 
   villagers.assign(v.slot, { job: 'harvest' });
   assert.equal(v.waitUntil, 0, 'reassignment must clear the stale cooldown');
+});
+
+test('legacy "sell" job assignments migrate to harvest on load', () => {
+  const ctx = makeVillagerCtx();
+  ctx.state.workers[0] = { job: 'sell' };
+  createVillagers(ctx);
+  assert.deepEqual(ctx.state.workers[0], { job: 'harvest' });
+});
+
+test('a full-backpack harvester sells unreserved materials instead of idling forever', () => {
+  const ctx = makeVillagerCtx();
+  ctx.inventory.isFull = () => true;
+  let sold = null;
+  ctx.economy.sell = (id, qty, opts) => { sold = { id, qty, opts }; return 12; };
+  const villagers = createVillagers(ctx);
+  villagers.update(0.001);
+  const v = villagers.list()[0];
+  villagers.assign(v.slot, { job: 'harvest' });
+  for (let i = 0; i < 200; i++) { ctx.state.time += 0.05; villagers.update(0.05); }
+  assert.ok(sold, 'harvester should have sold surplus materials at the stall');
+  assert.equal(sold.id, 'wood_log');
+  assert.equal(sold.opts.worker, true);
+});
+
+test('a crafter sells its own surplus output when blocked on ingredients', () => {
+  const ctx = makeVillagerCtx();
+  ctx.crafting.start = () => false; // no ingredients available
+  ctx.inventory.count = (id) => (id === 'cooked_meat' ? 4 : 0); // holding output only
+  let sold = null;
+  ctx.economy.isReserved = () => false;
+  ctx.economy.sell = (id, qty, opts) => { sold = { id, qty, opts }; return 20; };
+  const villagers = createVillagers(ctx);
+  villagers.update(0.001);
+  const v = villagers.list()[0];
+  villagers.assign(v.slot, { job: 'craft', building: 'kitchen', recipe: 'cooked_meat' });
+  for (let i = 0; i < 200; i++) { ctx.state.time += 0.05; villagers.update(0.05); }
+  assert.ok(sold, 'crafter should have sold its surplus output at the stall');
+  assert.equal(sold.id, 'cooked_meat');
 });
 
 test('loot roller always yields the guaranteed drop', () => {

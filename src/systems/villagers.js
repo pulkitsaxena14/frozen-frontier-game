@@ -22,6 +22,12 @@ export function createVillagers(ctx) {
   const villagers = [];
   let fullToastAt = -60;
 
+  // Legacy saves may have a villager on the old standalone 'sell' job, which
+  // no longer exists — crafters and harvesters sell their own surplus now.
+  for (const [slot, job] of Object.entries(state.workers ?? {})) {
+    if (job?.job === 'sell') state.workers[slot] = { job: 'harvest' };
+  }
+
   const efficiency = () =>
     state.research?.includes('worker_training') ? 0.9 : 0.75;
 
@@ -37,7 +43,7 @@ export function createVillagers(ctx) {
     if (job) state.workers[slot] = job;
     else delete state.workers[slot];
     const v = villagers.find((x) => x.slot === slot);
-    if (v) { v.target = null; v.hitTimer = 0; v.idleUntil = 0; v.waitUntil = 0; v.detour = null; v.stuckTime = 0; v.wanderDeadline = 0; }
+    if (v) { v.target = null; v.hitTimer = 0; v.idleUntil = 0; v.waitUntil = 0; v.detour = null; v.stuckTime = 0; v.wanderDeadline = 0; v.marketRun = false; }
     events.emit('worker.assigned', { slot, job });
   }
 
@@ -59,7 +65,7 @@ export function createVillagers(ctx) {
       slot: villagers.length, x: spot.x, y: spot.y, tx: spot.x, ty: spot.y,
       variant: villagers.length, ph: rand() * 6.28,
       idleUntil: state.time + rand() * 3, moving: false, facing: 1,
-      target: null, hitTimer: 0, waitUntil: 0,
+      target: null, hitTimer: 0, waitUntil: 0, marketRun: false,
       stuckTime: 0, detour: null, detourUntil: 0, wanderDeadline: 0,
       targetSince: 0, blocked: {},
     });
@@ -147,15 +153,37 @@ export function createVillagers(ctx) {
     return best;
   }
 
+  function sellAtStall(v, items, dt) {
+    const stall = world.buildings.find((b) => b.id === 'merchant');
+    if (!stall) return true; // nothing to travel toward — treat as done
+    const d = travel(v, stall.x + 1.2 + standOffset(v) * 0.6, stall.y + 0.9, dt);
+    if (d > 1.4) return false;
+    v.moving = false;
+    let earned = 0;
+    for (const item of items) {
+      const qty = ctx.inventory.count(item.id ?? item);
+      if (qty > 0) earned += ctx.economy.sell(item.id ?? item, qty, { worker: true });
+    }
+    if (earned > 0) {
+      ctx.particles.floatText(stall.x + 0.5, stall.y - 0.6, `+🪙${earned}`, '#ffd24a');
+    }
+    return true;
+  }
+
   function updateHarvester(v, dt) {
     if (state.time < v.waitUntil) { v.moving = false; return; }
     if (ctx.inventory.isFull()) {
-      v.moving = false;
-      v.waitUntil = state.time + FULL_RETRY_SECONDS;
-      if (state.time - fullToastAt > 30) {
-        fullToastAt = state.time;
-        events.emit('ui.toast', { text: '🎒 Workers paused — backpack full!' });
+      const sellable = ctx.economy.harvesterSellables();
+      if (sellable.length === 0) {
+        v.moving = false;
+        v.waitUntil = state.time + FULL_RETRY_SECONDS;
+        if (state.time - fullToastAt > 30) {
+          fullToastAt = state.time;
+          events.emit('ui.toast', { text: '🎒 Workers paused — backpack full of reserved materials!' });
+        }
+        return;
       }
+      if (sellAtStall(v, sellable, dt)) v.waitUntil = state.time + 0.5;
       return;
     }
     if (v.target) {
@@ -201,43 +229,36 @@ export function createVillagers(ctx) {
     }
   }
 
+  const CRAFTER_SURPLUS = 6; // sell own output once this many pile up, so a
+  // well-supplied crafter doesn't hoard forever between craft cycles
+
   function updateCrafter(v, job, dt) {
+    const recipe = config.recipesById[job.recipe];
+    if (!recipe) return;
+    const outputId = recipe.outputs[0].item;
+
+    if (v.marketRun) {
+      if (sellAtStall(v, [outputId], dt)) v.marketRun = false;
+      return;
+    }
+
     const building = world.buildings.find((b) => b.id === job.building);
     if (!building) return;
     const d = travel(v, building.x + 0.5 + standOffset(v), building.y + 1.3, dt);
     if (d > 1.4) return;
     v.moving = false;
     if (state.time < v.waitUntil) return;
-    const recipe = config.recipesById[job.recipe];
-    if (!recipe) return;
+
+    const held = ctx.inventory.count(outputId);
+    const canSell = held > 0 && !ctx.economy.isReserved(outputId);
+    if (canSell && held >= CRAFTER_SURPLUS) { v.marketRun = true; return; }
+
     if (ctx.crafting.start(job.recipe, { timeMult: 1 / efficiency(), worker: true })) {
       v.waitUntil = state.time + recipe.time / efficiency() + 0.5;
+    } else if (canSell) {
+      v.marketRun = true; // nothing to craft right now — sell what we have instead of idling
     } else {
-      v.waitUntil = state.time + 3; // missing inputs — check again shortly
-    }
-  }
-
-  const SELL_BATCH = 8;
-  const SELL_PAUSE = 7; // seconds between stall visits, scaled by efficiency
-
-  function updateSeller(v, dt) {
-    const stall = world.buildings.find((b) => b.id === 'merchant');
-    if (!stall) return;
-    const d = travel(v, stall.x + 1.2 + standOffset(v) * 0.6, stall.y + 0.9, dt);
-    if (d > 1.4) return;
-    v.moving = false;
-    if (state.time < v.waitUntil) return;
-    v.waitUntil = state.time + SELL_PAUSE / efficiency();
-    let remaining = SELL_BATCH;
-    let earned = 0;
-    for (const item of ctx.economy.workerSellables()) {
-      if (remaining <= 0) break;
-      const qty = Math.min(remaining, ctx.inventory.count(item.id));
-      earned += ctx.economy.sell(item.id, qty, { worker: true });
-      remaining -= qty;
-    }
-    if (earned > 0) {
-      ctx.particles.floatText(stall.x + 0.5, stall.y - 0.6, `+🪙${earned}`, '#ffd24a');
+      v.waitUntil = state.time + 3; // missing inputs and nothing to sell — check again shortly
     }
   }
 
@@ -290,7 +311,6 @@ export function createVillagers(ctx) {
       if (!job) updateWanderer(v, dt);
       else if (job.job === 'harvest') updateHarvester(v, dt);
       else if (job.job === 'craft') updateCrafter(v, job, dt);
-      else if (job.job === 'sell') updateSeller(v, dt);
     }
     separate(dt);
   }

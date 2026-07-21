@@ -119,9 +119,7 @@ export function createRenderer(ctx) {
       if (job) {
         const icon = job.job === 'harvest'
           ? '🪓'
-          : job.job === 'sell'
-            ? '🪙'
-            : config.itemsById[config.recipesById[job.recipe]?.outputs[0].item]?.icon ?? '⚒️';
+          : config.itemsById[config.recipesById[job.recipe]?.outputs[0].item]?.icon ?? '⚒️';
         g.save();
         g.globalAlpha = 0.9;
         g.font = `${Math.max(11, s * 0.24)}px sans-serif`;
