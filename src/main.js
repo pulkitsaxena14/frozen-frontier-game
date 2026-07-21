@@ -113,6 +113,7 @@ async function boot() {
   btnPlay.addEventListener('click', start);
   // A full reload gives every module a clean slate (no duplicate DOM listeners).
   btnNew.addEventListener('click', () => {
+    game.autosave.disable();
     clearSave();
     location.reload();
   });

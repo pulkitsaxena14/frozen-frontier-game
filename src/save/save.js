@@ -82,13 +82,15 @@ export function hasSave() {
 export function attachAutosave(ctx) {
   const { state, events } = ctx;
   let timer = 0;
+  let enabled = true;
+  const save = () => { if (enabled) writeSave(state); };
 
   for (const type of ['upgrade.purchased', 'tile.unlocked', 'quest.completed']) {
-    events.on(type, () => writeSave(state));
+    events.on(type, save);
   }
-  window.addEventListener('beforeunload', () => writeSave(state));
+  window.addEventListener('beforeunload', save);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') writeSave(state);
+    if (document.visibilityState === 'hidden') save();
   });
 
   return {
@@ -96,9 +98,13 @@ export function attachAutosave(ctx) {
       timer += dt;
       if (timer >= AUTOSAVE_SECONDS) {
         timer = 0;
-        writeSave(state);
+        save();
         events.emit('save.completed');
       }
     },
+    // Called right before an intentional clearSave()+reload so the
+    // beforeunload/visibilitychange handlers above don't resurrect the
+    // save we're about to discard.
+    disable() { enabled = false; },
   };
 }
