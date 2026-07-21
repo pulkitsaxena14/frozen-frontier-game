@@ -60,6 +60,22 @@ test('harvesters may sell raw materials but never a crafter\'s ingredients', () 
   assert.equal(evt.worker, true);
 });
 
+test('reservation follows chained recipes upstream, not just the direct ingredient', () => {
+  // Regression: smoked_fish needs cooked_fish + wood_log directly, so those
+  // reserved fine — but cooked_fish is itself made from raw_fish, and that
+  // link wasn't followed, so harvesters would auto-sell raw_fish out from
+  // under a smoked_fish crafter even with no cooked_fish crafter assigned.
+  const ctx = makeCtx();
+  ctx.inventory.add('raw_fish', 5, { ignoreCapacity: true });
+  ctx.inventory.add('stone', 5, { ignoreCapacity: true });
+  ctx.state.workers[0] = { job: 'craft', building: 'kitchen', recipe: 'smoked_fish' };
+  assert.equal(ctx.economy.isReserved('cooked_fish'), true); // direct input
+  assert.equal(ctx.economy.isReserved('wood_log'), true); // direct input
+  assert.equal(ctx.economy.isReserved('raw_fish'), true); // upstream of cooked_fish
+  const ids = ctx.economy.harvesterSellables().map((i) => i.id);
+  assert.deepEqual(ids, ['stone']);
+});
+
 test('compass locks onto one target for the whole quest instead of flipping direction as the player moves', () => {
   // Regression: the old cache recomputed "nearest" whenever the player moved
   // more than 4 tiles from the last check. Resource types spawn all around a

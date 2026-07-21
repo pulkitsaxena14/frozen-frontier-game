@@ -46,14 +46,25 @@ export function createEconomy(ctx) {
   }
 
   // Item ids off-limits for workers to auto-sell: anything an assigned
-  // crafter needs as a recipe ingredient, plus materials any not-yet-bought
-  // research still needs — upgrades (furnace/tool/etc.) are coins-only so
-  // they never reserve anything.
+  // crafter needs as a recipe ingredient — including further upstream, so a
+  // crafter making smoked_fish (needs cooked_fish + wood_log) also protects
+  // raw_fish, since that's what cooked_fish itself is made from — plus
+  // materials any not-yet-bought research still needs. Upgrades (furnace/
+  // tool/etc.) are coins-only so they never reserve anything.
   function reservedInputs() {
     const reserved = new Set();
+    const reserveChain = (recipeId, seen = new Set()) => {
+      if (seen.has(recipeId)) return; // guard against malformed circular recipes
+      seen.add(recipeId);
+      for (const input of config.recipesById[recipeId]?.inputs ?? []) {
+        reserved.add(input.item);
+        const upstream = config.recipes.find((r) => r.outputs.some((o) => o.item === input.item));
+        if (upstream) reserveChain(upstream.id, seen);
+      }
+    };
     for (const w of Object.values(state.workers ?? {})) {
       if (w?.job !== 'craft') continue;
-      for (const input of config.recipesById[w.recipe]?.inputs ?? []) reserved.add(input.item);
+      reserveChain(w.recipe);
     }
     for (const r of config.research ?? []) {
       if (state.research?.includes(r.id)) continue; // already bought — no longer needed
