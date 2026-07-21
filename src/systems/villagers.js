@@ -37,7 +37,7 @@ export function createVillagers(ctx) {
     if (job) state.workers[slot] = job;
     else delete state.workers[slot];
     const v = villagers.find((x) => x.slot === slot);
-    if (v) { v.target = null; v.hitTimer = 0; v.idleUntil = 0; v.detour = null; v.stuckTime = 0; v.wanderDeadline = 0; }
+    if (v) { v.target = null; v.hitTimer = 0; v.idleUntil = 0; v.waitUntil = 0; v.detour = null; v.stuckTime = 0; v.wanderDeadline = 0; }
     events.emit('worker.assigned', { slot, job });
   }
 

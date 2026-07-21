@@ -9,6 +9,7 @@ import { createProgression } from '../src/systems/progression.js';
 import { createResearch } from '../src/systems/research.js';
 import { createCrafting } from '../src/systems/crafting.js';
 import { createLootRoller } from '../src/systems/loot.js';
+import { createVillagers } from '../src/systems/villagers.js';
 import { defaultState } from '../src/save/save.js';
 import { roundCost } from '../src/utils/math.js';
 import { hash2D, weightedPick } from '../src/utils/rng.js';
@@ -54,6 +55,40 @@ test('delivery runners sell crafted goods but never crafter ingredients', () => 
   const coins = ctx.economy.sell('leather', 2, { worker: true });
   assert.ok(coins > 0);
   assert.equal(evt.worker, true);
+});
+
+test('reassigning a worker clears the outgoing job\'s cooldown', () => {
+  // Regression: assign() reset target/detour/etc but not waitUntil, so a
+  // worker reassigned mid-cooldown (e.g. right after a sell trip) froze for
+  // the remainder of the OLD job's wait timer before the new job did anything.
+  const ctx = {
+    state: { time: 0, seed: 1, quest: { index: 2 }, research: [], workers: {} },
+    world: {
+      gen: { center: 0 },
+      heatRadius: () => 5,
+      isWalkable: () => true,
+      isThawed: () => true,
+      nodeAt: () => null,
+      buildings: [{ id: 'merchant', x: 0, y: 0 }],
+    },
+    events: createEventBus(),
+    inventory: { isFull: () => false, count: () => 5, add: () => 1 },
+    progression: { toolMultiplier: () => 1 },
+    economy: { workerSellables: () => [{ id: 'cooked_meat' }], sell: () => 5 },
+    crafting: { start: () => true },
+    particles: { floatText: () => {} },
+    config: { world: { player: { harvest_interval: 1 } }, recipesById: {} },
+  };
+  const villagers = createVillagers(ctx);
+  villagers.update(0.001); // spawns the desired villager
+  const v = villagers.list()[0];
+
+  villagers.assign(v.slot, { job: 'sell' });
+  for (let i = 0; i < 400; i++) { ctx.state.time += 0.05; villagers.update(0.05); }
+  assert.ok(v.waitUntil > ctx.state.time, 'seller should be mid-cooldown');
+
+  villagers.assign(v.slot, { job: 'harvest' });
+  assert.equal(v.waitUntil, 0, 'reassignment must clear the stale cooldown');
 });
 
 test('loot roller always yields the guaranteed drop', () => {
