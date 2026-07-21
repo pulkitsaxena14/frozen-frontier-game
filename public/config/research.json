@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "research": [
+    { "id": "swift_hands",    "name": "Swift Hands",    "icon": "⚡", "cost": 250,
+      "materials": [ { "item": "wood_log", "amount": 10 } ],
+      "description": "Harvest 15% faster, permanently." },
+    { "id": "keen_eye",       "name": "Keen Eye",       "icon": "👁️", "cost": 300,
+      "materials": [ { "item": "ice_shard", "amount": 5 } ],
+      "description": "10% chance every harvest hit is a critical double drop." },
+    { "id": "warm_soles",     "name": "Warm Soles",     "icon": "🔥", "cost": 250,
+      "materials": [ { "item": "leather", "amount": 3 } ],
+      "description": "Walk 10% faster across the frontier." },
+    { "id": "deep_pockets",   "name": "Deep Pockets",   "icon": "👝", "cost": 350,
+      "materials": [ { "item": "leather", "amount": 4 } ],
+      "description": "Carry 20 more items." },
+    { "id": "barter",         "name": "Art of Barter",  "icon": "🤝", "cost": 400,
+      "materials": [ { "item": "cooked_meat", "amount": 4 } ],
+      "description": "Maple pays 10% more for everything." },
+    { "id": "frost_walker",   "name": "Frost Walker",   "icon": "❄️", "cost": 450,
+      "materials": [ { "item": "ice_shard", "amount": 8 } ],
+      "description": "Melting frontier tiles costs 10% less." },
+    { "id": "quick_forge",    "name": "Quick Forge",    "icon": "⚒️", "cost": 500,
+      "materials": [ { "item": "iron_ingot", "amount": 2 } ],
+      "description": "All crafting finishes 25% sooner." },
+    { "id": "efficient_flame","name": "Efficient Flame","icon": "☀️", "cost": 600,
+      "materials": [ { "item": "coal", "amount": 6 } ],
+      "description": "The furnace's warmth reaches 2 tiles farther." },
+    { "id": "worker_training","name": "Worker Training","icon": "📖", "cost": 700,
+      "materials": [ { "item": "smoked_fish", "amount": 3 } ],
+      "description": "Villagers work at 90% of your efficiency (up from 75%)." }
+  ]
+}

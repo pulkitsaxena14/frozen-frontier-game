@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "resources": [
+    { "id": "ice_tree",     "name": "Ice Tree",      "tier": 1, "health": 4, "respawn": 45,  "experience": 5,  "sprite": "ice_tree",     "sound": "chop",
+      "drops": [ { "item": "wood_log", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "stone_rock",   "name": "Stone",         "tier": 1, "health": 3, "respawn": 60,  "experience": 4,  "sprite": "stone_rock",   "sound": "mine",
+      "drops": [ { "item": "stone", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "berry_bush",   "name": "Berry Bush",    "tier": 1, "health": 2, "respawn": 45,  "experience": 3,  "sprite": "berry_bush",   "sound": "pick",
+      "drops": [ { "item": "berries", "weight": 100, "min": 1, "max": 3 } ] },
+    { "id": "rabbit",       "name": "Snow Rabbit",   "tier": 1, "health": 2, "respawn": 90,  "experience": 5,  "sprite": "rabbit",       "sound": "animal", "mobile": true,
+      "drops": [ { "item": "raw_meat", "weight": 100, "min": 1, "max": 1 }, { "item": "hide", "weight": 30, "min": 1, "max": 1 } ] },
+    { "id": "polar_bear",   "name": "Polar Bear",    "tier": 1, "health": 6, "respawn": 90,  "experience": 12, "sprite": "polar_bear",   "sound": "animal", "mobile": true,
+      "drops": [ { "item": "raw_meat", "weight": 100, "min": 1, "max": 2 }, { "item": "hide", "weight": 60, "min": 1, "max": 1 } ] },
+
+    { "id": "fish_hole",    "name": "Fishing Hole",  "tier": 1, "health": 3, "respawn": 60,  "experience": 5,  "sprite": "fish_hole",    "sound": "splash",
+      "drops": [ { "item": "raw_fish", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "ice_crystal",  "name": "Ice Crystal",   "tier": 2, "health": 4, "respawn": 120, "experience": 8,  "sprite": "ice_crystal",  "sound": "mine",
+      "drops": [ { "item": "ice_shard", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "seal",         "name": "Seal",          "tier": 2, "health": 4, "respawn": 90,  "experience": 10, "sprite": "seal",         "sound": "animal", "mobile": true,
+      "drops": [ { "item": "raw_fish", "weight": 100, "min": 1, "max": 2 }, { "item": "hide", "weight": 50, "min": 1, "max": 1 } ] },
+
+    { "id": "pine_tree",    "name": "Pine Tree",     "tier": 2, "health": 5, "respawn": 45,  "experience": 7,  "sprite": "pine_tree",    "sound": "chop",
+      "drops": [ { "item": "wood_log", "weight": 100, "min": 2, "max": 3 } ] },
+    { "id": "mushroom_patch","name": "Mushroom Patch","tier": 2, "health": 2, "respawn": 60, "experience": 6,  "sprite": "mushroom_patch","sound": "pick",
+      "drops": [ { "item": "mushroom", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "wolf",         "name": "Frost Wolf",    "tier": 2, "health": 5, "respawn": 90,  "experience": 14, "sprite": "wolf",         "sound": "animal", "mobile": true,
+      "drops": [ { "item": "wolf_pelt", "weight": 80, "min": 1, "max": 1 }, { "item": "raw_meat", "weight": 100, "min": 1, "max": 2 } ] },
+
+    { "id": "iron_vein",    "name": "Iron Vein",     "tier": 2, "health": 5, "respawn": 120, "experience": 10, "sprite": "iron_vein",    "sound": "mine",
+      "drops": [ { "item": "iron_ore", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "coal_vein",    "name": "Coal Vein",     "tier": 2, "health": 4, "respawn": 120, "experience": 8,  "sprite": "coal_vein",    "sound": "mine",
+      "drops": [ { "item": "coal", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "gold_vein",    "name": "Gold Vein",     "tier": 3, "health": 6, "respawn": 120, "experience": 16, "sprite": "gold_vein",    "sound": "mine",
+      "drops": [ { "item": "gold_ore", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "crystal_spire","name": "Crystal Spire", "tier": 3, "health": 6, "respawn": 300, "experience": 24, "sprite": "crystal_spire","sound": "crystal",
+      "drops": [ { "item": "crystal", "weight": 100, "min": 1, "max": 1 } ] },
+
+    { "id": "mammoth",      "name": "Mammoth",       "tier": 3, "health": 8, "respawn": 300, "experience": 40, "sprite": "mammoth",      "sound": "animal", "mobile": true,
+      "drops": [ { "item": "mammoth_tusk", "weight": 70, "min": 1, "max": 1 }, { "item": "raw_meat", "weight": 100, "min": 2, "max": 3 }, { "item": "hide", "weight": 80, "min": 1, "max": 2 } ] },
+    { "id": "ruin_cache",   "name": "Ruin Cache",    "tier": 4, "health": 5, "respawn": 300, "experience": 35, "sprite": "ruin_cache",   "sound": "mine",
+      "drops": [ { "item": "relic", "weight": 100, "min": 1, "max": 1 } ] },
+    { "id": "magic_ice_node","name": "Magic Ice",    "tier": 4, "health": 6, "respawn": 300, "experience": 35, "sprite": "magic_ice",    "sound": "crystal",
+      "drops": [ { "item": "magic_ice", "weight": 100, "min": 1, "max": 1 } ] },
+
+    { "id": "obsidian_flow","name": "Obsidian Flow", "tier": 4, "health": 6, "respawn": 300, "experience": 40, "sprite": "obsidian_flow","sound": "mine",
+      "drops": [ { "item": "obsidian", "weight": 100, "min": 1, "max": 2 } ] },
+    { "id": "fire_crystal", "name": "Fire Crystal",  "tier": 4, "health": 8, "respawn": 300, "experience": 50, "sprite": "fire_crystal", "sound": "crystal",
+      "drops": [ { "item": "fire_gem", "weight": 100, "min": 1, "max": 1 } ] }
+  ]
+}

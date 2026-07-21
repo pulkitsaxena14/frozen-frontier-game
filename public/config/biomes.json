@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "biomes": [
+    {
+      "id": "snow_plains",
+      "name": "Snow Plains",
+      "tier": 1,
+      "maxDist": 14,
+      "density": 0.1,
+      "ground": {
+        "frozen": "#dcedfa",
+        "thawed": "#9ed48a"
+      },
+      "resources": [
+        {
+          "id": "ice_tree",
+          "weight": 40
+        },
+        {
+          "id": "stone_rock",
+          "weight": 25
+        },
+        {
+          "id": "berry_bush",
+          "weight": 15
+        },
+        {
+          "id": "rabbit",
+          "weight": 15
+        },
+        {
+          "id": "polar_bear",
+          "weight": 5
+        }
+      ]
+    },
+    {
+      "id": "frozen_lake",
+      "name": "Frozen Lake",
+      "tier": 2,
+      "maxDist": 20,
+      "density": 0.09,
+      "ground": {
+        "frozen": "#aed6ef",
+        "thawed": "#8fd0c8"
+      },
+      "resources": [
+        {
+          "id": "fish_hole",
+          "weight": 40
+        },
+        {
+          "id": "ice_crystal",
+          "weight": 25
+        },
+        {
+          "id": "seal",
+          "weight": 15
+        },
+        {
+          "id": "ice_tree",
+          "weight": 12
+        },
+        {
+          "id": "stone_rock",
+          "weight": 8
+        }
+      ]
+    },
+    {
+      "id": "pine_forest",
+      "name": "Pine Forest",
+      "tier": 2,
+      "maxDist": 27,
+      "density": 0.13,
+      "ground": {
+        "frozen": "#c6e4d8",
+        "thawed": "#6fbf73"
+      },
+      "resources": [
+        {
+          "id": "pine_tree",
+          "weight": 42
+        },
+        {
+          "id": "mushroom_patch",
+          "weight": 20
+        },
+        {
+          "id": "berry_bush",
+          "weight": 14
+        },
+        {
+          "id": "wolf",
+          "weight": 14
+        },
+        {
+          "id": "rabbit",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "mountains",
+      "name": "Mountains",
+      "tier": 3,
+      "maxDist": 34,
+      "density": 0.11,
+      "ground": {
+        "frozen": "#cfd9e8",
+        "thawed": "#a8a795"
+      },
+      "resources": [
+        {
+          "id": "iron_vein",
+          "weight": 30
+        },
+        {
+          "id": "coal_vein",
+          "weight": 26
+        },
+        {
+          "id": "stone_rock",
+          "weight": 16
+        },
+        {
+          "id": "gold_vein",
+          "weight": 16
+        },
+        {
+          "id": "crystal_spire",
+          "weight": 8
+        },
+        {
+          "id": "wolf",
+          "weight": 4
+        }
+      ]
+    },
+    {
+      "id": "ancient_ruins",
+      "name": "Ancient Ruins",
+      "tier": 4,
+      "maxDist": 42,
+      "density": 0.09,
+      "ground": {
+        "frozen": "#d8d2e8",
+        "thawed": "#b9a8c9"
+      },
+      "resources": [
+        {
+          "id": "ruin_cache",
+          "weight": 30
+        },
+        {
+          "id": "magic_ice_node",
+          "weight": 26
+        },
+        {
+          "id": "mammoth",
+          "weight": 18
+        },
+        {
+          "id": "crystal_spire",
+          "weight": 14
+        },
+        {
+          "id": "gold_vein",
+          "weight": 12
+        }
+      ]
+    },
+    {
+      "id": "volcanic_rift",
+      "name": "Volcanic Rift",
+      "tier": 4,
+      "maxDist": 999,
+      "density": 0.1,
+      "ground": {
+        "frozen": "#e0cfd0",
+        "thawed": "#7a5a52"
+      },
+      "resources": [
+        {
+          "id": "obsidian_flow",
+          "weight": 38
+        },
+        {
+          "id": "fire_crystal",
+          "weight": 22
+        },
+        {
+          "id": "coal_vein",
+          "weight": 20
+        },
+        {
+          "id": "ruin_cache",
+          "weight": 10
+        },
+        {
+          "id": "magic_ice_node",
+          "weight": 10
+        }
+      ]
+    }
+  ]
+}

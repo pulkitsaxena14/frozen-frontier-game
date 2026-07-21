@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "quests": [
+    { "id": "q_wood",       "title": "Chop the ice trees",      "type": "collect_item", "target": "wood_log",    "count": 6,  "rewards": { "coins": 30,  "xp": 15 } },
+    { "id": "q_sell",       "title": "Sell 5 goods to Maple",   "type": "sell_items",   "count": 5,               "rewards": { "coins": 40,  "xp": 20 } },
+    { "id": "q_expand1",    "title": "Melt 3 new tiles",        "type": "expand_tiles", "count": 3,               "rewards": { "coins": 50,  "xp": 25 } },
+    { "id": "q_meat",       "title": "Hunt for raw meat",       "type": "collect_item", "target": "raw_meat",    "count": 4,  "rewards": { "coins": 40,  "xp": 25 } },
+    { "id": "q_cook",       "title": "Cook 3 meals",            "type": "craft_item",   "target": "cooked_meat", "count": 3,  "rewards": { "coins": 60,  "xp": 30 } },
+    { "id": "q_furnace",    "title": "Upgrade the furnace",     "type": "upgrade",      "target": "furnace",     "count": 1,  "rewards": { "coins": 80,  "xp": 40 } },
+    { "id": "q_fish",       "title": "Fish the frozen lake",    "type": "collect_item", "target": "raw_fish",    "count": 5,  "rewards": { "coins": 60,  "xp": 35 } },
+    { "id": "q_smoke",      "title": "Smoke 2 fish",            "type": "craft_item",   "target": "smoked_fish", "count": 2,  "rewards": { "coins": 90,  "xp": 45 } },
+    { "id": "q_expand2",    "title": "Melt 8 more tiles",       "type": "expand_tiles", "count": 8,               "rewards": { "coins": 120, "xp": 60 } },
+    { "id": "q_iron",       "title": "Mine iron in the peaks",  "type": "collect_item", "target": "iron_ore",    "count": 6,  "rewards": { "coins": 120, "xp": 60 } },
+    { "id": "q_ingot",      "title": "Forge 2 iron ingots",     "type": "craft_item",   "target": "iron_ingot",  "count": 2,  "rewards": { "coins": 150, "xp": 75 } },
+    { "id": "q_tool",       "title": "Upgrade your tools",      "type": "upgrade",      "target": "tool",        "count": 1,  "rewards": { "coins": 150, "xp": 75 } },
+    { "id": "q_research",   "title": "Study at the Research Hut","type": "research",                             "count": 1,  "rewards": { "coins": 200, "xp": 100 } },
+    { "id": "q_worker",     "title": "Put a villager to work",  "type": "assign_worker",                         "count": 1,  "rewards": { "coins": 200, "xp": 100 } },
+    { "id": "q_crystal",    "title": "Harvest 2 crystals",      "type": "collect_item", "target": "crystal",     "count": 2,  "rewards": { "coins": 250, "xp": 120 } },
+    { "id": "q_meal",       "title": "Prepare a luxury meal",   "type": "craft_item",   "target": "luxury_meal", "count": 1,  "rewards": { "coins": 250, "xp": 120 } },
+    { "id": "q_relic",      "title": "Uncover an ancient relic","type": "collect_item", "target": "relic",       "count": 1,  "rewards": { "coins": 400, "xp": 200 } },
+    { "id": "q_obsidian",   "title": "Reach the volcanic rift", "type": "collect_item", "target": "obsidian",    "count": 3,  "rewards": { "coins": 500, "xp": 250 } },
+    { "id": "q_endless",    "title": "Grow a fortune (5,000 coins)", "type": "earn_coins", "count": 5000,        "rewards": { "coins": 1000, "xp": 500 } }
+  ]
+}

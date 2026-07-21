@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "sell_ratio": 0.6,
+  "demand_bonus": 0.25,
+  "demand_rotate_seconds": 180,
+  "expansion_base": 25,
+  "expansion_per_tile": 4,
+  "xp_curve_base": 100,
+  "xp_curve_exp": 1.6
+}

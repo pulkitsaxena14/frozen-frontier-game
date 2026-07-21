@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "size": 128,
+  "chunk": 16,
+  "tile_px": 64,
+  "heat_base_radius": 6,
+  "heat_max_radius": 30,
+  "player": {
+    "speed_tiles": 4.2,
+    "harvest_interval": 0.55,
+    "base_capacity": 20,
+    "base_magnet": 1.3,
+    "interact_radius": 1.6
+  },
+  "buildings": [
+    { "id": "furnace",  "name": "Furnace",       "icon": "🔥", "dx": 0,  "dy": 0 },
+    { "id": "forge",    "name": "Forge",         "icon": "⚒️", "dx": -3, "dy": -2 },
+    { "id": "kitchen",  "name": "Kitchen",       "icon": "🍳", "dx": 3,  "dy": -2 },
+    { "id": "merchant", "name": "Maple's Stall", "icon": "🛒", "dx": 0,  "dy": 3 },
+    { "id": "research", "name": "Research Hut", "icon": "🔬", "dx": -4, "dy": 3 }
+  ]
+}

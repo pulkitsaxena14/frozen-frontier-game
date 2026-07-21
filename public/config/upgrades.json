@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "upgrades": [
+    { "id": "furnace", "name": "Furnace", "icon": "🔥", "baseCost": 100, "maxLevel": 10,
+      "levelNames": ["Campfire", "Stone Furnace", "Brick Furnace", "Iron Furnace", "Steel Furnace", "Blast Furnace", "Steam Generator", "Crystal Core", "Magma Heart", "Fusion Furnace"],
+      "description": "Heats the land. Each level melts a wider circle of ice for free." },
+    { "id": "tool", "name": "Harvest Tool", "icon": "⛏️", "baseCost": 60, "maxLevel": 5,
+      "levelNames": ["Wooden Tools", "Stone Tools", "Iron Tools", "Steel Tools", "Mythic Tools"],
+      "multipliers": [1.0, 1.3, 1.7, 2.2, 3.0],
+      "description": "Better tools harvest faster and hit harder." },
+    { "id": "boots", "name": "Snow Boots", "icon": "🥾", "baseCost": 50, "maxLevel": 8,
+      "description": "Move 10% faster per level." },
+    { "id": "backpack", "name": "Backpack", "icon": "🎒", "baseCost": 40, "maxLevel": 13,
+      "description": "Carry 10 more items per level." },
+    { "id": "magnet", "name": "Frost Magnet", "icon": "🧲", "baseCost": 45, "maxLevel": 6,
+      "description": "Pull drops toward you from farther away." }
+  ],
+  "costGrowth": 1.5
+}

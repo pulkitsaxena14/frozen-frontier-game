@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "items": [
+    { "id": "wood_log",    "name": "Wood Log",     "icon": "🪵", "category": "material", "tier": 1, "value": 5 },
+    { "id": "stone",       "name": "Stone",        "icon": "🪨", "category": "material", "tier": 1, "value": 4 },
+    { "id": "raw_meat",    "name": "Raw Meat",     "icon": "🍖", "category": "food",     "tier": 1, "value": 8 },
+    { "id": "raw_fish",    "name": "Raw Fish",     "icon": "🐟", "category": "food",     "tier": 1, "value": 10 },
+    { "id": "berries",     "name": "Frost Berries","icon": "🫐", "category": "food",     "tier": 1, "value": 6 },
+    { "id": "hide",        "name": "Hide",         "icon": "🟫", "category": "material", "tier": 1, "value": 12 },
+    { "id": "ice_shard",   "name": "Ice Shard",    "icon": "🧊", "category": "material", "tier": 1, "value": 7 },
+    { "id": "mushroom",    "name": "Snow Mushroom","icon": "🍄", "category": "food",     "tier": 2, "value": 12 },
+    { "id": "iron_ore",    "name": "Iron Ore",     "icon": "⛏️", "category": "ore",      "tier": 2, "value": 15 },
+    { "id": "coal",        "name": "Coal",         "icon": "◾", "category": "fuel",     "tier": 2, "value": 10 },
+    { "id": "wolf_pelt",   "name": "Wolf Pelt",    "icon": "🐺", "category": "material", "tier": 2, "value": 20 },
+    { "id": "gold_ore",    "name": "Gold Ore",     "icon": "🟡", "category": "ore",      "tier": 3, "value": 30 },
+    { "id": "crystal",     "name": "Crystal",      "icon": "💎", "category": "magic",    "tier": 3, "value": 45 },
+    { "id": "mammoth_tusk","name": "Mammoth Tusk", "icon": "🦣", "category": "material", "tier": 3, "value": 60 },
+    { "id": "relic",       "name": "Ancient Relic","icon": "🏺", "category": "magic",    "tier": 4, "value": 90 },
+    { "id": "magic_ice",   "name": "Magic Ice",    "icon": "❄️", "category": "magic",    "tier": 4, "value": 80 },
+    { "id": "obsidian",    "name": "Obsidian",     "icon": "🌑", "category": "material", "tier": 4, "value": 70 },
+    { "id": "fire_gem",    "name": "Fire Gem",     "icon": "🔥", "category": "magic",    "tier": 4, "value": 100 },
+
+    { "id": "cooked_meat", "name": "Cooked Meat",  "icon": "🥩", "category": "food",     "tier": 1, "value": 16, "crafted": true },
+    { "id": "cooked_fish", "name": "Cooked Fish",  "icon": "🍣", "category": "food",     "tier": 1, "value": 20, "crafted": true },
+    { "id": "smoked_fish", "name": "Smoked Fish",  "icon": "🐠", "category": "food",     "tier": 2, "value": 40, "crafted": true },
+    { "id": "berry_jam",   "name": "Berry Jam",    "icon": "🍯", "category": "food",     "tier": 1, "value": 14, "crafted": true },
+    { "id": "leather",     "name": "Leather",      "icon": "🧳", "category": "material", "tier": 1, "value": 24, "crafted": true },
+    { "id": "iron_ingot",  "name": "Iron Ingot",   "icon": "🔩", "category": "material", "tier": 2, "value": 45, "crafted": true },
+    { "id": "gold_bar",    "name": "Gold Bar",     "icon": "🥇", "category": "material", "tier": 3, "value": 90, "crafted": true },
+    { "id": "luxury_meal", "name": "Luxury Meal",  "icon": "🍱", "category": "food",     "tier": 3, "value": 90, "crafted": true },
+    { "id": "crystal_lens","name": "Crystal Lens", "icon": "🔮", "category": "magic",    "tier": 3, "value": 135, "crafted": true }
+  ]
+}

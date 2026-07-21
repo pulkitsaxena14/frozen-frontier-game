@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "recipes": [
+    { "id": "cooked_meat",  "building": "kitchen", "time": 2,  "experience": 6,
+      "inputs": [ { "item": "raw_meat", "amount": 1 } ],
+      "outputs": [ { "item": "cooked_meat", "amount": 1 } ] },
+    { "id": "cooked_fish",  "building": "kitchen", "time": 2,  "experience": 6,
+      "inputs": [ { "item": "raw_fish", "amount": 1 } ],
+      "outputs": [ { "item": "cooked_fish", "amount": 1 } ] },
+    { "id": "berry_jam",    "building": "kitchen", "time": 2,  "experience": 5,
+      "inputs": [ { "item": "berries", "amount": 2 } ],
+      "outputs": [ { "item": "berry_jam", "amount": 1 } ] },
+    { "id": "smoked_fish",  "building": "kitchen", "time": 5,  "experience": 12,
+      "inputs": [ { "item": "cooked_fish", "amount": 1 }, { "item": "wood_log", "amount": 1 } ],
+      "outputs": [ { "item": "smoked_fish", "amount": 1 } ] },
+    { "id": "luxury_meal",  "building": "kitchen", "time": 10, "experience": 30,
+      "inputs": [ { "item": "cooked_meat", "amount": 1 }, { "item": "berry_jam", "amount": 1 }, { "item": "mushroom", "amount": 1 } ],
+      "outputs": [ { "item": "luxury_meal", "amount": 1 } ] },
+
+    { "id": "leather",      "building": "forge",   "time": 2,  "experience": 8,
+      "inputs": [ { "item": "hide", "amount": 1 } ],
+      "outputs": [ { "item": "leather", "amount": 1 } ] },
+    { "id": "iron_ingot",   "building": "forge",   "time": 5,  "experience": 15,
+      "inputs": [ { "item": "iron_ore", "amount": 2 }, { "item": "coal", "amount": 1 } ],
+      "outputs": [ { "item": "iron_ingot", "amount": 1 } ] },
+    { "id": "gold_bar",     "building": "forge",   "time": 10, "experience": 25,
+      "inputs": [ { "item": "gold_ore", "amount": 2 }, { "item": "coal", "amount": 1 } ],
+      "outputs": [ { "item": "gold_bar", "amount": 1 } ] },
+    { "id": "crystal_lens", "building": "forge",   "time": 10, "experience": 35,
+      "inputs": [ { "item": "crystal", "amount": 2 } ],
+      "outputs": [ { "item": "crystal_lens", "amount": 1 } ] }
+  ]
+}
