@@ -2,6 +2,12 @@
 import { dist } from '../utils/math.js';
 
 const BUILDING_OPEN_RANGE = 2.6;
+// Workers now routinely leave their post for market runs (selling surplus
+// crafted goods or a full backpack of raw materials), not just wandering
+// villagers — a tight range meant a worker you walked up to at their
+// building/camp spot was often actually away selling and un-tappable. Wide
+// enough to comfortably cover "at the merchant while I'm back at camp".
+const VILLAGER_SELECT_RANGE = 10;
 
 export function createInteraction(ctx) {
   const { state, world, events, camera, economy } = ctx;
@@ -34,7 +40,7 @@ export function createInteraction(ctx) {
     let best = null;
     let bestD = radius;
     for (const v of ctx.villagers.list()) {
-      if (dist(v.x, v.y, p.x, p.y) > 4) continue;
+      if (dist(v.x, v.y, p.x, p.y) > VILLAGER_SELECT_RANGE) continue;
       const d = Math.min(dist(v.x, v.y, wx, wy), dist(v.x, v.y - 0.45, wx, wy));
       if (d < bestD) { bestD = d; best = v; }
     }

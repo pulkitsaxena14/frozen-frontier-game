@@ -45,12 +45,13 @@ export function createEconomy(ctx) {
     return coins;
   }
 
-  // Item ids off-limits for workers to auto-sell: anything an assigned
-  // crafter needs as a recipe ingredient — including further upstream, so a
-  // crafter making smoked_fish (needs cooked_fish + wood_log) also protects
-  // raw_fish, since that's what cooked_fish itself is made from — plus
-  // materials any not-yet-bought research still needs. Upgrades (furnace/
-  // tool/etc.) are coins-only so they never reserve anything.
+  // Item ids off-limits for workers to auto-sell, full stop: anything an
+  // assigned crafter needs as a recipe ingredient — including further
+  // upstream, so a crafter making smoked_fish (needs cooked_fish + wood_log)
+  // also protects raw_fish, since that's what cooked_fish itself is made
+  // from. A hard, unbounded ban is correct here: a crafter can always use
+  // more of its ingredients. Upgrades (furnace/tool/etc.) are coins-only so
+  // they never reserve anything.
   function reservedInputs() {
     const reserved = new Set();
     const reserveChain = (recipeId, seen = new Set()) => {
@@ -66,10 +67,6 @@ export function createEconomy(ctx) {
       if (w?.job !== 'craft') continue;
       reserveChain(w.recipe);
     }
-    for (const r of config.research ?? []) {
-      if (state.research?.includes(r.id)) continue; // already bought — no longer needed
-      for (const m of r.materials ?? []) reserved.add(m.item);
-    }
     return reserved;
   }
 
@@ -77,15 +74,37 @@ export function createEconomy(ctx) {
     return reservedInputs().has(itemId);
   }
 
-  // What a harvester may auto-sell once its backpack is full: raw materials
-  // only, minus anything an assigned crafter needs as an ingredient. Crafted
-  // goods are handled separately — a crafter sells its own surplus output.
-  function harvesterSellables() {
-    const reserved = reservedInputs();
-    return config.items.filter(
-      (it) => !it.crafted && !reserved.has(it.id) && inventory.count(it.id) > 0
-    );
+  // How much of an item to keep in reserve for not-yet-bought research —
+  // summed across every research that still needs it, since research needs
+  // are fixed one-time amounts (unlike a crafter's open-ended appetite).
+  // Anything beyond this is a genuine surplus, free to sell.
+  function researchReserveAmount(itemId) {
+    let need = 0;
+    for (const r of config.research ?? []) {
+      if (state.research?.includes(r.id)) continue; // already bought — no longer needed
+      for (const m of r.materials ?? []) if (m.item === itemId) need += m.amount;
+    }
+    return need;
   }
 
-  return { addCoins, spend, demandItemId, sellPrice, sell, harvesterSellables, isReserved };
+  // How many of an item a worker may actually sell right now: zero if a
+  // crafter needs it (direct or upstream), otherwise whatever's left over
+  // after keeping enough for pending research. This must stay bounded
+  // rather than a blanket ban — otherwise a backpack that happens to fill
+  // with just the handful of item types some research needs (even with zero
+  // crafters assigned) leaves a harvester with nothing sellable at all and
+  // it sits paused indefinitely instead of just selling the surplus.
+  function sellableQty(itemId) {
+    if (isReserved(itemId)) return 0;
+    return Math.max(0, inventory.count(itemId) - researchReserveAmount(itemId));
+  }
+
+  // What a harvester may auto-sell once its backpack is full: raw materials
+  // with an actual surplus. Crafted goods are handled separately — a
+  // crafter sells its own surplus output.
+  function harvesterSellables() {
+    return config.items.filter((it) => !it.crafted && sellableQty(it.id) > 0);
+  }
+
+  return { addCoins, spend, demandItemId, sellPrice, sell, harvesterSellables, isReserved, sellableQty };
 }

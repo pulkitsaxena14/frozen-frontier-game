@@ -161,8 +161,9 @@ export function createVillagers(ctx) {
     v.moving = false;
     let earned = 0;
     for (const item of items) {
-      const qty = ctx.inventory.count(item.id ?? item);
-      if (qty > 0) earned += ctx.economy.sell(item.id ?? item, qty, { worker: true });
+      const id = item.id ?? item;
+      const qty = ctx.economy.sellableQty(id);
+      if (qty > 0) earned += ctx.economy.sell(id, qty, { worker: true });
     }
     if (earned > 0) {
       ctx.particles.floatText(stall.x + 0.5, stall.y - 0.6, `+🪙${earned}`, '#ffd24a');
@@ -249,9 +250,9 @@ export function createVillagers(ctx) {
     v.moving = false;
     if (state.time < v.waitUntil) return;
 
-    const held = ctx.inventory.count(outputId);
-    const canSell = held > 0 && !ctx.economy.isReserved(outputId);
-    if (canSell && held >= CRAFTER_SURPLUS) { v.marketRun = true; return; }
+    const sellableHeld = ctx.economy.sellableQty(outputId);
+    const canSell = sellableHeld > 0;
+    if (canSell && sellableHeld >= CRAFTER_SURPLUS) { v.marketRun = true; return; }
 
     if (ctx.crafting.start(job.recipe, { timeMult: 1 / efficiency(), worker: true })) {
       v.waitUntil = state.time + recipe.time / efficiency() + 0.5;

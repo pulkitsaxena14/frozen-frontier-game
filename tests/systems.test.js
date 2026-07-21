@@ -117,13 +117,30 @@ test('compass locks onto one target for the whole quest instead of flipping dire
   assert.equal(compass.target(), null);
 });
 
-test('materials needed by unresearched research are protected from auto-sale', () => {
+test('research reservation only protects the amount still needed, not the whole stack', () => {
   const ctx = makeCtx();
-  ctx.inventory.add('ice_shard', 5, { ignoreCapacity: true }); // keen_eye + frost_walker both need it
-  assert.equal(ctx.economy.isReserved('ice_shard'), true);
+  ctx.inventory.add('ice_shard', 20, { ignoreCapacity: true }); // keen_eye(5) + frost_walker(8) = 13 needed
+  assert.equal(ctx.economy.isReserved('ice_shard'), false); // not a crafting-chain hard ban
+  assert.equal(ctx.economy.sellableQty('ice_shard'), 7); // 20 - 13 is genuine surplus
+  ctx.state.research = ['keen_eye']; // one bought — only frost_walker's 8 still needed
+  assert.equal(ctx.economy.sellableQty('ice_shard'), 12);
+  ctx.state.research = ['keen_eye', 'frost_walker']; // both bought — nothing reserved anymore
+  assert.equal(ctx.economy.sellableQty('ice_shard'), 20);
+});
+
+test('a harvester is never fully blocked just because a material also feeds research', () => {
+  // Regression: research reservation used to be a blanket ban on the whole
+  // item, not just the amount actually needed. A backpack that filled with
+  // just the handful of item types some unbought research happens to want
+  // (wood_log/ice_shard/coal are all common early harvest drops) left
+  // harvesters with nothing sellable at all — even with zero crafters
+  // assigned — so they'd sit paused indefinitely instead of selling surplus.
+  const ctx = makeCtx();
+  ctx.inventory.add('ice_shard', 13, { ignoreCapacity: true }); // exactly what's needed, no surplus
+  assert.equal(ctx.economy.sellableQty('ice_shard'), 0);
   assert.deepEqual(ctx.economy.harvesterSellables().map((i) => i.id), []);
-  ctx.state.research = ['keen_eye', 'frost_walker']; // both bought — no longer needed
-  assert.equal(ctx.economy.isReserved('ice_shard'), false);
+  ctx.inventory.add('ice_shard', 5, { ignoreCapacity: true }); // now a surplus of 5
+  assert.equal(ctx.economy.sellableQty('ice_shard'), 5);
   assert.deepEqual(ctx.economy.harvesterSellables().map((i) => i.id), ['ice_shard']);
 });
 
@@ -141,7 +158,12 @@ function makeVillagerCtx() {
     events: createEventBus(),
     inventory: { isFull: () => false, count: () => 5, add: () => 1 },
     progression: { toolMultiplier: () => 1 },
-    economy: { harvesterSellables: () => [{ id: 'wood_log' }], isReserved: () => false, sell: () => 5 },
+    economy: {
+      harvesterSellables: () => [{ id: 'wood_log' }],
+      isReserved: () => false,
+      sellableQty: () => 5,
+      sell: () => 5,
+    },
     crafting: { start: () => true },
     particles: { floatText: () => {} },
     config: { world: { player: { harvest_interval: 1 } }, recipesById: {
@@ -194,7 +216,7 @@ test('a crafter sells its own surplus output when blocked on ingredients', () =>
   ctx.crafting.start = () => false; // no ingredients available
   ctx.inventory.count = (id) => (id === 'cooked_meat' ? 4 : 0); // holding output only
   let sold = null;
-  ctx.economy.isReserved = () => false;
+  ctx.economy.sellableQty = (id) => (id === 'cooked_meat' ? 4 : 0);
   ctx.economy.sell = (id, qty, opts) => { sold = { id, qty, opts }; return 20; };
   const villagers = createVillagers(ctx);
   villagers.update(0.001);
